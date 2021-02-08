@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>URL Shortener</title>
+  <link rel="stylesheet" type="text/css" href="semantic/dist/semantic.min.css">
+  <script src="https://code.jquery.com/jquery-3.1.1.min.js"
+    integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+  <script src="semantic/dist/semantic.min.js"></script>
+</head>
+
+<body>
+  <div class="ui two column centered grid">
+    <div class="column"></div>
+  <form class="ui form" id='post-form'>
+    <div class="field">
+      {% csrf_token %}
+      <label> Enter URL </label>
+      <input type="url" name="link" placeholder="URL" id="link">
+    </div>
+    <button class="ui button" type="submit" id="shorten">Shorten</button>
+  </form>
+  <div id="output">
+  </div></div>
+  <script type="text/javascript">
+    $(document).on('submit', '#post-form', function (e) {
+      e.preventDefault();
+      $.ajax({
+        type: 'POST',
+        url: '/create',
+        data: {
+          link: $('#link').val(),
+          csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
+        },
+        success: function (data) {
+          $('#output').html("localhost:8000/" + data);
+          console.log("Ajax done");
+        }
+      }
+      )});
+  </script>
+</body>
+
+</html>
