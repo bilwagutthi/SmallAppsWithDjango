@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Dictionary</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+
+<body style="background-color:rgb(230,230,230);">
+
+    <!-- Header-->
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <h1>English Dictionary</h1>
+        </div>
+    </div>
+
+    <!-- Search Bar-->
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <form action="" method="POST" id="search">
+                {% csrf_token %}
+                <input type="text" name="word" id="word" minlength="1" data-toggle="tooltip" data-placement="top"
+                    title="Enter one word" required>
+                <button type="submit" id="butn">Search</button>
+            </form>
+        </div>
+    </div>
+    <!-- Results Display Bar -->
+    <div class="contianer">
+        <div class="row no-gutters" id="rowID">
+        </div>
+    </div>
+        <script>
+            $(document).on('submit', '#search', function (e) {
+                e.preventDefault();
+                $.ajax({
+                    type: "POST",
+                    url: "/word",
+                    data: {
+                        "word": $("#word").val(),
+                        csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+                    },
+                    dataType: 'json',
+                    success: function (response) {
+                        if ((response.meaning == null)) {
+                            $('#rowID').html(
+                                '<div class="col-sm-12"><div class="panel panel-default"><div class="panel-body">No such word found.<br> Please enter a valid word.</div></div></div>'
+                                );
+                        } else {
+                            $("#response").text(response.synonyms);
+                            $('#rowID').html(
+                                '<div class="col-sm-4"><div class="panel panel-default"><div class="panel-heading"> Meaning</div><div class="panel-body" id="meaning"></div></div></div><div class="col-sm-4"><div class="panel panel-default"><div class="panel-heading"> Synonyms</div><div class="panel-body" id="syn"></div></div></div><div class="col-sm-4"><div class="panel panel-default"><div class="panel-heading"> Antonymys</div><div class="panel-body" id="ant"></div></div></div> '
+                                );
+                            var meaning = "",
+                                syn = "",
+                                ant = "";
+                            let count = 1;
+                            if (response.meaning.Noun != null) {
+                                meaning += "<br><b> Nouns : </b> <br>";
+                                response.meaning.Noun.forEach((i) => {
+                                    meaning += count++ + ". " + i + "<br>";
+                                })
+                            } else {
+                                meaning += "<br><i> No meaning available. </i> <br>";
+                            }
+                            count=1;
+                            if (response.meaning.Verb != null) {
+                                meaning += "<br><b> Verb : </b> <br>";
+                                response.meaning.Verb.forEach((i) => {
+                                    meaning += count++ + ". " + i + "<br>";
+                                })
+                            } else {
+                                meaning += "<br><i> No verbs available. </i> <br>";
+                            }
+                            $('#meaning').html(meaning);
+                            count=1;
+
+                            if (response.synonyms != null) {
+                                syn += "<br>";
+                                response.synonyms.forEach((i) => {
+                                    syn += count++ + ". " + i + "<br>";
+                                })
+                            } else {
+                                syn += "<br><i> No synonyms available. </i> <br>";
+                            }
+                            count=1;
+                            $('#syn').html(syn);
+                            if (response.antonyms != null) {
+                                ant += "<br>";
+                                response.antonyms.forEach((i) => {
+                                    ant += count++ + ". " + i + "<br>";
+                                })
+                            } else {
+                                ant += "<br><i> No antonyms available. </i> <br>";
+                            }
+                            $('#ant').html(ant);
+
+                        }
+                    }
+                });
+            });
+        </script>
+</body>
+
+</html>
